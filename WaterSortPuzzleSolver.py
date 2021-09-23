@@ -4,7 +4,7 @@ from WaterSortPuzzle import Vial, LBLUE, DBLUE, YELLOW, ORANGE, LGREEN, GREEN, D
 
 import sys
 
-sys.setrecursionlimit(15000)
+sys.setrecursionlimit(10000)
 
 
 def gameOver(vialSet):
@@ -17,9 +17,8 @@ def gameOver(vialSet):
     return True
 
 
-def startGameWithSpecificStartingVial(vialSet, recordedMoves, startingVial, level=1, isQuestionPuzzle=False):
+def startGameWithSpecificStartingVial(vialSet, recordedMoves, startingVial, isQuestionPuzzle=False):
     possibleGameMoves = PriorityQueue()
-    # TODO: This can be reversed(vialSet) or just vialSet, it just matters whether or not it helps find a solution
     for toVial in vialSet:
         # Skip pouring into itself
         if startingVial == toVial:
@@ -33,19 +32,19 @@ def startGameWithSpecificStartingVial(vialSet, recordedMoves, startingVial, leve
     while not possibleGameMoves.empty():
         gameMove = possibleGameMoves.get2()
         # Perform the move, then recurse, then undo the move
-        print("Attempting move " + str(gameMove) + " at level " + str(level))
+        # print("Attempting move " + str(gameMove) + " at level " + str(len(recordedMoves)))
         recordedMoves.append(str(gameMove))
         gameMove.execute()
-        if getGameResult(vialSet, recordedMoves, level + 1, isQuestionPuzzle):
+        if getGameResult(vialSet, recordedMoves, isQuestionPuzzle):
             return True
         gameMove.undo()
         recordedMoves.pop()
         del gameMove
 
 
-def getGameResult(vialSet, recordedMoves, level=1, isQuestionPuzzle=False):
+def getGameResult(vialSet, recordedMoves, isQuestionPuzzle=False):
     if gameOver(vialSet):
-        print("Game Complete!")
+        print("Game Complete with " + str(len(recordedMoves)) + " moves!")
         return True
 
     if isQuestionPuzzle:
@@ -60,10 +59,10 @@ def getGameResult(vialSet, recordedMoves, level=1, isQuestionPuzzle=False):
     while not possibleGameMoves.empty():
         gameMove = possibleGameMoves.get2()
         # Perform the move, then recurse, then undo the move
-        print("Attempting move " + str(gameMove) + " at level " + str(level))
+        # print("Attempting move " + str(gameMove) + " at level " + str(len(recordedMoves)))
         recordedMoves.append(str(gameMove))
         gameMove.execute()
-        if getGameResult(vialSet, recordedMoves, level + 1, isQuestionPuzzle):
+        if getGameResult(vialSet, recordedMoves, isQuestionPuzzle):
             return True
         gameMove.undo()
         recordedMoves.pop()
@@ -81,9 +80,10 @@ def checkForUnknown(vialSet, moves):
             # Replace the unknown color with the reported color
             # TODO: Sometimes two colors pop up, allow comma separated for these cases
             reportedColor = input("What color is in vial " + str(vial.getId()) + "?")
-            reportedColor.split(",")
-            vial.pop()
-            vial.push(reportedColor)
+            colors = reportedColor.split(",")
+            for color in colors:
+                vial.pop()
+                vial.push(color)
 
             # Print new color map
             print("The new reported colors:")
@@ -92,8 +92,7 @@ def checkForUnknown(vialSet, moves):
 
 def getPossibleGameMoves(vialSet):
     possibleGameMoves = PriorityQueue()
-    # TODO: This can be reversed(vialSet) or just vialSet, it just matters whether or not it helps find a solution
-    for fromVial in reversed(vialSet):
+    for fromVial in vialSet:
         for toVial in vialSet:
             # Skip pouring into itself
             if fromVial == toVial:
@@ -175,5 +174,6 @@ if __name__ == "__main__":
     getGameResult(gameVialSet, gameMoves, isQuestionPuzzle=isQuestionGame)
 
     # Print the solution steps
+    print("\nSolution:")
     for qualityMove in gameMoves:
         print(qualityMove)
