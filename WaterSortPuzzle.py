@@ -86,7 +86,7 @@ class VialSet:
 
         return totalHeuristic
 
-    def validate(self):
+    def validate(self, isQuestionPuzzle=False):
         retVal = True
         # Dictionary of color counts
         colors = {}
@@ -96,6 +96,9 @@ class VialSet:
 
         for vial in self.vialList:
             for color in vial:
+                # Don't count unknown colors
+                if color is UNKNOWN:
+                    continue
                 # Check if the color is in the dict
                 if color in colors.keys():
                     colors[color] = colors[color] + 1
@@ -104,8 +107,11 @@ class VialSet:
 
         # Check for any color that does not equal 4
         for colorName in colors.keys():
-            if colors[colorName] != 4:
+            if colors[colorName] != 4 and not isQuestionPuzzle:
                 print(colorName + " has an invalid count (" + str(colors[colorName]) + ")")
+                retVal = False
+            elif isQuestionPuzzle and colors[colorName] > 4:
+                print(colorName + " has more than 4 colors (" + str(colors[colorName]) + ")")
                 retVal = False
 
         return retVal
@@ -122,6 +128,9 @@ class VialSet:
             retVal += str(vial) + "\n"
 
         return retVal
+
+    def __reversed__(self):
+        return reversed(self.vialList)
 
 
 class Vial:
@@ -255,6 +264,7 @@ PURPLE = "Purple"
 RED = "Red"
 BROWN = "Brown"
 PINK = "Pink"
+UNKNOWN = "Unknown"
 
 
 class Liquid:

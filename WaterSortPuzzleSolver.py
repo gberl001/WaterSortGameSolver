@@ -1,6 +1,6 @@
 from PriorityQueue import PriorityQueue
 from WaterSortPuzzle import Vial, LBLUE, DBLUE, YELLOW, ORANGE, LGREEN, GREEN, DGREEN, GRAY, PURPLE, \
-    RED, BROWN, PINK, Move, VialSet
+    RED, BROWN, PINK, Move, VialSet, UNKNOWN
 
 import sys
 
@@ -22,27 +22,49 @@ def getGameResult(vialSet, recordedMoves):
         print("Game Complete!")
         return True
 
+    checkForUnknown(vialSet, recordedMoves)
     possibleGameMoves = getPossibleGameMoves(vialSet)
-    if len(possibleGameMoves) == 0:
-        print("Exhausted this attempt")
-        print(vialSet)
-        print("------------------------------------------")
+    # if len(possibleGameMoves) == 0:
+    #     print("Exhausted this attempt")
+        # print(vialSet)
+        # print("------------------------------------------")
 
     while not possibleGameMoves.empty():
         gameMove = possibleGameMoves.get2()
         # Perform the move, then recurse, then undo the move
-        print("Attempting move " + str(gameMove))
+        # print("Attempting move " + str(gameMove))
         recordedMoves.append(str(gameMove))
         gameMove.execute()
         if getGameResult(vialSet, recordedMoves):
             return True
         gameMove.undo()
         recordedMoves.pop()
+        del gameMove
+
+
+def checkForUnknown(vialSet, moves):
+    for vial in vialSet:
+        # Check for unknown color
+        if vial.peek() == UNKNOWN:
+            for move in moves:
+                print(move)
+            print()
+
+            # Replace the unknown color with the reported color
+            # TODO: Sometimes two colors pop up, allow comma separated for these cases
+            reportedColor = input("What color is in vial " + str(vial.getId()) + "?")
+            reportedColor.split(",")
+            vial.pop()
+            vial.push(reportedColor)
+
+            # Print new color map
+            print("The new reported colors:")
+            print(vialSet)
 
 
 def getPossibleGameMoves(vialSet):
     possibleGameMoves = PriorityQueue()
-    for fromVial in vialSet:
+    for fromVial in reversed(vialSet):
         for toVial in vialSet:
             # Skip pouring into itself
             if fromVial == toVial:
@@ -97,22 +119,22 @@ if __name__ == "__main__":
 
     # Add the vials
     gameVialSet.addVial(Vial(1, DBLUE, DGREEN, LBLUE, LBLUE))
-    gameVialSet.addVial(Vial(2, PURPLE, PINK, GREEN, LGREEN))     # Unsure
+    gameVialSet.addVial(Vial(2, PURPLE, PINK, GREEN, GRAY))
     gameVialSet.addVial(Vial(3, ORANGE, PURPLE, RED, BROWN))
     gameVialSet.addVial(Vial(4, ORANGE, PINK, RED, ORANGE))
     gameVialSet.addVial(Vial(5, DGREEN, RED, YELLOW, DBLUE))
-    gameVialSet.addVial(Vial(6, YELLOW, DGREEN, BROWN, LGREEN))     # Unsure
-    gameVialSet.addVial(Vial(7, BROWN, PURPLE, RED, ORANGE))     # Unsure
-    gameVialSet.addVial(Vial(8, LGREEN, PURPLE, PINK, GREEN))     # Unsure
+    gameVialSet.addVial(Vial(6, YELLOW, DGREEN, BROWN, UNKNOWN))
+    gameVialSet.addVial(Vial(7, BROWN, PURPLE, RED, LGREEN))
+    gameVialSet.addVial(Vial(8, LGREEN, PURPLE, PINK, LGREEN))
     gameVialSet.addVial(Vial(9, GREEN, GRAY, LBLUE, DBLUE))
-    gameVialSet.addVial(Vial(10, BROWN, YELLOW, GRAY, DGREEN))     # Unsure
-    gameVialSet.addVial(Vial(11, GRAY, YELLOW, LGREEN, DBLUE))     # Unsure
-    gameVialSet.addVial(Vial(12, GREEN, LBLUE, PINK, GRAY))     # Unsure
-    gameVialSet.addVial(Vial(10))
-    gameVialSet.addVial(Vial(11))
+    gameVialSet.addVial(Vial(10, BROWN, YELLOW, GRAY, UNKNOWN))
+    gameVialSet.addVial(Vial(11, GRAY, YELLOW, LGREEN, DBLUE))
+    gameVialSet.addVial(Vial(12, GREEN, LBLUE, PINK, ORANGE))
+    gameVialSet.addVial(Vial(13))
+    gameVialSet.addVial(Vial(14))
 
     # Make sure it's a valid game
-    if not gameVialSet.validate():
+    if not gameVialSet.validate(True):
         exit(1)
 
     gameMoves = []
