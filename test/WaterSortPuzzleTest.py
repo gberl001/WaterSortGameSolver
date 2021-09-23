@@ -17,7 +17,7 @@ class TestSolver(unittest.TestCase):
         vial2 = Vial(2)
         vial1.push("color1")
 
-        self.assertEqual(True, validAndUsefulMove(vial1, vial2))
+        self.assertEqual(False, validAndUsefulMove(vial1, vial2))
 
     def testValidMoveDifferentColors(self):
         vial1 = Vial(1)
@@ -49,6 +49,15 @@ class TestSolver(unittest.TestCase):
     def testValidMoveWithFullToVial(self):
         vial1 = Vial(1, "color1", "color2", "color3", "color4")
         vial2 = Vial(2)
+        vial2.push("color1")
+
+        self.assertEqual(False, validAndUsefulMove(vial2, vial1))
+
+    def testValidMoveWithSingleColorNonFullFromVial(self):
+        vial1 = Vial(1)
+        vial2 = Vial(2)
+        vial2.push("color1")
+        vial2.push("color1")
         vial2.push("color1")
 
         self.assertEqual(False, validAndUsefulMove(vial2, vial1))
