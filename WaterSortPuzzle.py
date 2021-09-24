@@ -37,7 +37,7 @@ PURPLE = Liquid("#9900FF", "Purple")
 RED = Liquid("#CC0000", "Red")
 BROWN = Liquid("#783F04", "Brown")
 PINK = Liquid("#E06666", "Pink")
-UNKNOWN = Liquid("#FFFFFF", "Unknown")
+UNKNOWN = Liquid("#000000", "Unknown")
 
 
 class Move:
