@@ -1,5 +1,5 @@
 from PriorityQueue import PriorityQueue
-from WaterSortPuzzle import Vial, LBLUE, DBLUE, YELLOW, ORANGE, LGREEN, GREEN, DGREEN, GRAY, PURPLE, \
+from WaterSortPuzzle import Vial, LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, GREEN, DARK_GREEN, GRAY, PURPLE, \
     RED, BROWN, PINK, Move, VialSet, UNKNOWN
 
 import sys
@@ -150,20 +150,20 @@ if __name__ == "__main__":
     isQuestionGame = False
 
     # Add the vials
-    gameVialSet.addVial(Vial(1, DBLUE, DGREEN, LBLUE, LBLUE))
+    gameVialSet.addVial(Vial(1, DARK_BLUE, DARK_GREEN, LIGHT_BLUE, LIGHT_BLUE))
     gameVialSet.addVial(Vial(2, PURPLE, PINK, GREEN, GRAY))
     gameVialSet.addVial(Vial(3, ORANGE, PURPLE, RED, BROWN))
     gameVialSet.addVial(Vial(4, ORANGE, PINK, RED, ORANGE))
-    gameVialSet.addVial(Vial(5, DGREEN, RED, YELLOW, DBLUE))
-    gameVialSet.addVial(Vial(6, YELLOW, DGREEN, BROWN, DGREEN))
-    gameVialSet.addVial(Vial(7, BROWN, PURPLE, RED, LGREEN))
-    gameVialSet.addVial(Vial(8, LGREEN, PURPLE, PINK, LGREEN))
-    gameVialSet.addVial(Vial(9, GREEN, GRAY, LBLUE, DBLUE))
+    gameVialSet.addVial(Vial(5, DARK_GREEN, RED, YELLOW, DARK_BLUE))
+    gameVialSet.addVial(Vial(6, YELLOW, DARK_GREEN, BROWN, DARK_GREEN))
+    gameVialSet.addVial(Vial(7, BROWN, PURPLE, RED, LIGHT_GREEN))
+    gameVialSet.addVial(Vial(8, LIGHT_GREEN, PURPLE, PINK, LIGHT_GREEN))
+    gameVialSet.addVial(Vial(9, GREEN, GRAY, LIGHT_BLUE, DARK_BLUE))
     gameVialSet.addVial(Vial(10, BROWN, YELLOW, GRAY, GREEN))
-    gameVialSet.addVial(Vial(11, GRAY, YELLOW, LGREEN, DBLUE))
-    gameVialSet.addVial(Vial(12, GREEN, LBLUE, PINK, ORANGE))
-    gameVialSet.addVial(Vial(13))
-    gameVialSet.addVial(Vial(14))
+    gameVialSet.addVial(Vial(11, GRAY, YELLOW, LIGHT_GREEN, DARK_BLUE))
+    gameVialSet.addVial(Vial(12, GREEN, LIGHT_BLUE, PINK, ORANGE))
+    gameVialSet.addVial(Vial(13, startEmpty=True),)
+    gameVialSet.addVial(Vial(14, startEmpty=True))
 
     # Make sure it's a valid game
     if not gameVialSet.validate(isQuestionGame):

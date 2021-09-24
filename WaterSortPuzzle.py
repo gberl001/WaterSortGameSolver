@@ -1,3 +1,45 @@
+class Liquid:
+    def __init__(self, color, name):
+        self.color = color
+        self.name = name
+
+    def getColor(self):
+        return self.color
+
+    def getName(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
+    def __eq__(self, other):
+        if isinstance(other, Liquid):
+            return self.__key() == other.__key()
+        return NotImplemented
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __key(self):
+        return self.color, self.name
+
+
+# Colors
+LIGHT_BLUE = Liquid("#00FFFF", "Light Blue")
+DARK_BLUE = Liquid("#0000FF", "Dark Blue")
+YELLOW = Liquid("#FFFF00", "Yellow")
+ORANGE = Liquid("#FF9900", "Orange")
+LIGHT_GREEN = Liquid("#00FF00", "Light Green")
+GREEN = Liquid("#93C47D", "Green")
+DARK_GREEN = Liquid("#274E13", "Dark Green")
+GRAY = Liquid("#999999", "Gray")
+PURPLE = Liquid("#9900FF", "Purple")
+RED = Liquid("#CC0000", "Red")
+BROWN = Liquid("#783F04", "Brown")
+PINK = Liquid("#E06666", "Pink")
+UNKNOWN = Liquid("#FFFFFF", "Unknown")
+
+
 class Move:
     def __init__(self, fromVial, toVial):
         self.fromVial = fromVial
@@ -30,23 +72,33 @@ class Move:
         return totalHeuristic
 
     def __str__(self):
-        return str(self.fromVial.getId()) + " (" + self.fromVial.peek() + ") --> " + str(
-            self.toVial.getId()) + " (" + self.toVial.peek() + ")"
+        return str(self.fromVial.getId()) + " (" + str(self.fromVial.peek()) + ") --> " + str(
+            self.toVial.getId()) + " (" + str(self.toVial.peek()) + ")"
 
     def __lt__(self, other):
-        return self.moveHeuristic() < other.moveHeuristic()
+        if isinstance(other, Move):
+            return self.moveHeuristic() < other.moveHeuristic()
+        return NotImplemented
 
     def __le__(self, other):
-        return self.moveHeuristic() <= other.moveHeuristic()
+        if isinstance(other, Move):
+            return self.moveHeuristic() <= other.moveHeuristic()
+        return NotImplemented
 
     def __ge__(self, other):
-        return self.moveHeuristic() >= other.moveHeuristic()
+        if isinstance(other, Move):
+            return self.moveHeuristic() >= other.moveHeuristic()
+        return NotImplemented
 
     def __gt__(self, other):
-        return self.moveHeuristic() > other.moveHeuristic()
+        if isinstance(other, Move):
+            return self.moveHeuristic() > other.moveHeuristic()
+        return NotImplemented
 
     def __eq__(self, other):
-        return self.moveHeuristic() == other.moveHeuristic()
+        if isinstance(other, Move):
+            return self.moveHeuristic() == other.moveHeuristic()
+        return NotImplemented
 
 
 class VialSet:
@@ -97,7 +149,7 @@ class VialSet:
         for vial in self.vialList:
             for color in vial:
                 # Don't count unknown colors
-                if color is UNKNOWN:
+                if color == UNKNOWN:
                     continue
                 # Check if the color is in the dict
                 if color in colors.keys():
@@ -135,13 +187,10 @@ class VialSet:
 
 class Vial:
 
-    def __init__(self, vialId, color1="", color2="", color3="", color4=""):
-        if color1 == "" and (color2 != "" or color3 != "" or color4 != ""):
-            print("Error, either all colors must be provided or no colors for an empty vial")
-
+    def __init__(self, vialId, color1=UNKNOWN, color2=UNKNOWN, color3=UNKNOWN, color4=UNKNOWN, startEmpty=False):
         self.vialId = vialId
 
-        if color1 == "":
+        if startEmpty:
             self.colors = []
         else:
             self.colors = [color4, color3, color2, color1]
@@ -155,11 +204,11 @@ class Vial:
     def isFull(self):
         return len(self.colors) == self.maxSize
 
-    def push(self, item):
+    def push(self, color):
         if self.isFull():
             print("The vial is already full")
         else:
-            self.colors.append(item)
+            self.colors.append(color)
 
     def pop(self):
         return self.colors.pop()
@@ -211,10 +260,10 @@ class Vial:
 
     def __str__(self):
         retVal = str(self.vialId) + " - <"
-        retVal += self.colors[3] + ", " if len(self.colors) > 3 else "empty, "
-        retVal += self.colors[2] + ", " if len(self.colors) > 2 else "empty, "
-        retVal += self.colors[1] + ", " if len(self.colors) > 1 else "empty, "
-        retVal += self.colors[0] if len(self.colors) > 0 else "empty"
+        retVal += str(self.colors[3]) + ", " if len(self.colors) > 3 else "empty, "
+        retVal += str(self.colors[2]) + ", " if len(self.colors) > 2 else "empty, "
+        retVal += str(self.colors[1]) + ", " if len(self.colors) > 1 else "empty, "
+        retVal += str(self.colors[0]) if len(self.colors) > 0 else "empty"
 
         return retVal + ">"
 
@@ -249,27 +298,3 @@ class VialIterator:
             raise StopIteration
 
         return self.vial.colors[self.index]
-
-
-# Colors
-LBLUE = "lBlue"
-DBLUE = "dBlue"
-YELLOW = "Yellow"
-ORANGE = "Orange"
-LGREEN = "lGreen"
-GREEN = "Green"
-DGREEN = "dGreen"
-GRAY = "Gray"
-PURPLE = "Purple"
-RED = "Red"
-BROWN = "Brown"
-PINK = "Pink"
-UNKNOWN = "Unknown"
-
-
-class Liquid:
-    def __init__(self, color):
-        self.color = color
-
-    def getColor(self):
-        return self.color
