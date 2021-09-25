@@ -158,12 +158,12 @@ class VialSet:
                     colors[color] = 1
 
         # Check for any color that does not equal 4
-        for colorName in colors.keys():
-            if colors[colorName] != 4 and not isQuestionPuzzle:
-                print(colorName + " has an invalid count (" + str(colors[colorName]) + ")")
+        for color in colors.keys():
+            if colors[color] != 4 and not isQuestionPuzzle:
+                print(str(color) + " has an invalid count (" + str(colors[color]) + ")")
                 retVal = False
-            elif isQuestionPuzzle and colors[colorName] > 4:
-                print(colorName + " has more than 4 colors (" + str(colors[colorName]) + ")")
+            elif isQuestionPuzzle and colors[color] > 4:
+                print(str(color) + " has more than 4 colors (" + str(colors[color]) + ")")
                 retVal = False
 
         return retVal
