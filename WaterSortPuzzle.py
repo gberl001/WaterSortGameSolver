@@ -145,9 +145,12 @@ class VialSet:
 
         print("There are " + str(len(self.vialList)) + " vials in the game")
         print("There are " + str(len(self.vialList[0])) + " colors in each vial")
+        expectedColorCount = (len(self.vialList) - 2) * 4
+        actualColorCnt = 0
 
         for vial in self.vialList:
             for color in vial:
+                actualColorCnt += 1
                 # Don't count unknown colors
                 if color == UNKNOWN:
                     continue
@@ -165,6 +168,26 @@ class VialSet:
             elif isQuestionPuzzle and colors[color] > 4:
                 print(str(color) + " has more than 4 colors (" + str(colors[color]) + ")")
                 retVal = False
+
+        # Check for empty vial(s)
+        emptyCnt = 0
+        for vial in self.vialList:
+            if vial.isEmpty():
+                emptyCnt += 1
+        if emptyCnt != 2:
+            print("There are " + str(emptyCnt) + " empty vials.")
+            retVal = False
+
+        # Check that there are the expected amount of colors
+        if actualColorCnt == len(self.vialList) * 4:
+            print("It looks like you might have forgotten to use the startEmpty=True parameter for your empty vials")
+            retVal = False
+        elif actualColorCnt < expectedColorCount:
+            print(str(actualColorCnt) + " is not enough colors for " + str(len(self.vialList) - 2) + " filled vials.")
+            retVal = False
+        elif actualColorCnt > expectedColorCount:
+            print(str(actualColorCnt) + " is too many colors for " + str(len(self.vialList) - 2) + " filled vials.")
+            retVal = False
 
         return retVal
 
