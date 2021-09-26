@@ -138,6 +138,9 @@ class VialSet:
 
         return totalHeuristic
 
+    def removeVial(self, vialId):
+        self.vialList.remove(self.getVial(vialId))
+
     def validate(self, isQuestionPuzzle=False):
         retVal = True
         # Dictionary of color counts

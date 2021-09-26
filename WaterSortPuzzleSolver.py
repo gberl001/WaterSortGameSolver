@@ -1,3 +1,4 @@
+from GameSetupPrompt import ColorSelectionDialog
 from PriorityQueue import PriorityQueue
 from WaterSortPuzzle import Vial, LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, GREEN, DARK_GREEN, GRAY, PURPLE, \
     RED, BROWN, PINK, Move, VialSet, UNKNOWN
@@ -75,15 +76,17 @@ def checkForUnknown(vialSet, moves):
         if vial.peek() == UNKNOWN:
             for move in moves:
                 print(move)
-            print()
+
+            ColorSelectionDialog("What color is in vial " + str(vial.getId()) + "?", vialSet, vial.getId()).exec_()
+            # print()
 
             # Replace the unknown color with the reported color
             # TODO: Sometimes two colors pop up, allow comma separated for these cases
-            reportedColor = input("What color is in vial " + str(vial.getId()) + "?")
-            colors = reportedColor.split(",")
-            for color in colors:
-                vial.pop()
-                vial.push(color)
+            # reportedColor = input("What color is in vial " + str(vial.getId()) + "?")
+            # colors = reportedColor.split(",")
+            # for color in colors:
+            #     vial.pop()
+            #     vial.push(color)
 
             # Print new color map
             print("The new reported colors:")

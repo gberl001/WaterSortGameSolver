@@ -459,3 +459,13 @@ class TestVialSet(unittest.TestCase):
         vialSet.addVial(Vial(7, startEmpty=True))
 
         self.assertFalse(vialSet.validate(isQuestionPuzzle=True))
+
+    def testRemoveVial(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+
+        self.assertEqual(1, len(vialSet))
+
+        vialSet.removeVial(1)
+
+        self.assertEqual(0, len(vialSet))
