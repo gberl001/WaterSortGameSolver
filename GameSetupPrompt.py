@@ -274,10 +274,8 @@ class SetupWindow(QWidget):
     def selectAFile(self):
         global colorCount, vialSet
         file, check = QFileDialog.getOpenFileName(None, "Select Image", "", "All Files (*)")
-        print(file)
         if check:
             vialSet = getVials(file, getEmpty=False)
-            print(len(vialSet))
 
     # Remove the last color
     def undo(self):
