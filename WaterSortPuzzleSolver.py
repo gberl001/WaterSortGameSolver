@@ -78,15 +78,6 @@ def checkForUnknown(vialSet, moves):
                 print(str(move))
 
             ColorSelectionDialog("What color is in vial " + str(vial.getId()) + "?", vialSet, vial.getId(), moves).exec_()
-            # print()
-
-            # Replace the unknown color with the reported color
-            # TODO: Sometimes two colors pop up, allow comma separated for these cases
-            # reportedColor = input("What color is in vial " + str(vial.getId()) + "?")
-            # colors = reportedColor.split(",")
-            # for color in colors:
-            #     vial.pop()
-            #     vial.push(color)
 
             # Print new color map
             print("The new reported colors:")
