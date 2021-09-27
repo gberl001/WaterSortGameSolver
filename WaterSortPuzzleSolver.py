@@ -77,7 +77,7 @@ def checkForUnknown(vialSet, moves):
             for move in moves:
                 print(move)
 
-            ColorSelectionDialog("What color is in vial " + str(vial.getId()) + "?", vialSet, vial.getId()).exec_()
+            ColorSelectionDialog("What color is in vial " + str(vial.getId()) + "?", vialSet, vial.getId(), moves).exec_()
             # print()
 
             # Replace the unknown color with the reported color

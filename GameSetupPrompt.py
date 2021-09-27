@@ -17,14 +17,16 @@ vialSet = VialSet()
 colorCount = 0
 isQuestionGame = False
 
+
 class ColorSelectionDialog(QDialog):
 
-    def __init__(self, msg, vialList, vialNum):
+    def __init__(self, msg, vialList, vialNum, moves):
         super().__init__()
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.layout.addWidget(QLabel(msg))
+        self.moves = moves
 
         self.initButtonSubmit()
         self.vialList = vialList
@@ -33,6 +35,7 @@ class ColorSelectionDialog(QDialog):
         self.btnGrid = QWidget()
         self.initButtonGrid()
         self.colorsAdded = 0
+        self.displayMoves()
 
     def initButtonSubmit(self):
         submitLayout = QGridLayout()
@@ -62,6 +65,13 @@ class ColorSelectionDialog(QDialog):
                     btn.setStyleSheet("background-color : " + str(colors[btnCnt].getColor()))
                 btnLayout.addWidget(btn, i, j)
                 btnCnt += 1
+
+    def displayMoves(self):
+        moveLayout = QVBoxLayout()
+        for move in self.moves:
+            moveLayout.addWidget(QLabel(str(move)))
+
+        self.layout.addLayout(moveLayout)
 
     def buttonClicked(self, position):
         self.colorsAdded += 1
@@ -191,7 +201,7 @@ class SetupWindow(QWidget):
         btnSolve.clicked.connect(lambda: self.solveTheGame())
         btnUndo.clicked.connect(lambda: self.undo())
         btnLayout.addWidget(btnUndo, 0, 0, 1, 1)
-        btnLayout.addWidget(btnSolve, 0,1, 1, 1)
+        btnLayout.addWidget(btnSolve, 0, 1, 1, 1)
 
     # Remove the last color
     def undo(self):
