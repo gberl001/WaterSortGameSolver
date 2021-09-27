@@ -1,3 +1,4 @@
+from GameSetupPrompt import ColorSelectionDialog
 from PriorityQueue import PriorityQueue
 from WaterSortPuzzle import Vial, LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, GREEN, DARK_GREEN, GRAY, PURPLE, \
     RED, BROWN, PINK, Move, VialSet, UNKNOWN
@@ -33,7 +34,7 @@ def startGameWithSpecificStartingVial(vialSet, recordedMoves, startingVial, isQu
         gameMove = possibleGameMoves.get2()
         # Perform the move, then recurse, then undo the move
         # print("Attempting move " + str(gameMove) + " at level " + str(len(recordedMoves)))
-        recordedMoves.append(str(gameMove))
+        recordedMoves.append(gameMove.shallowCopy())
         gameMove.execute()
         if getGameResult(vialSet, recordedMoves, isQuestionPuzzle):
             return True
@@ -60,7 +61,7 @@ def getGameResult(vialSet, recordedMoves, isQuestionPuzzle=False):
         gameMove = possibleGameMoves.get2()
         # Perform the move, then recurse, then undo the move
         # print("Attempting move " + str(gameMove) + " at level " + str(len(recordedMoves)))
-        recordedMoves.append(str(gameMove))
+        recordedMoves.append(gameMove.shallowCopy())
         gameMove.execute()
         if getGameResult(vialSet, recordedMoves, isQuestionPuzzle):
             return True
@@ -74,16 +75,9 @@ def checkForUnknown(vialSet, moves):
         # Check for unknown color
         if vial.peek() == UNKNOWN:
             for move in moves:
-                print(move)
-            print()
+                print(str(move))
 
-            # Replace the unknown color with the reported color
-            # TODO: Sometimes two colors pop up, allow comma separated for these cases
-            reportedColor = input("What color is in vial " + str(vial.getId()) + "?")
-            colors = reportedColor.split(",")
-            for color in colors:
-                vial.pop()
-                vial.push(color)
+            ColorSelectionDialog("What color is in vial " + str(vial.getId()) + "?", vialSet, vial.getId(), moves).exec_()
 
             # Print new color map
             print("The new reported colors:")

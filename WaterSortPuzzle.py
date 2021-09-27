@@ -37,7 +37,7 @@ PURPLE = Liquid("#9900FF", "Purple")
 RED = Liquid("#CC0000", "Red")
 BROWN = Liquid("#783F04", "Brown")
 PINK = Liquid("#E06666", "Pink")
-UNKNOWN = Liquid("#FFFFFF", "Unknown")
+UNKNOWN = Liquid("#000000", "Unknown")
 
 
 class Move:
@@ -57,6 +57,12 @@ class Move:
                 self.fromVial.push(self.toVial.pop())
             self.amtMoved = 0
 
+    def getFromVial(self):
+        return self.fromVial
+
+    def getToVial(self):
+        return self.toVial
+
     def moveHeuristic(self):
         totalHeuristic = 0
         # We don't want to move from a full single color to an empty vial, that's a lateral move
@@ -70,6 +76,9 @@ class Move:
             totalHeuristic += 200
 
         return totalHeuristic
+
+    def shallowCopy(self):
+        return Move(self.fromVial.shallowCopy(), self.toVial.shallowCopy())
 
     def __str__(self):
         return str(self.fromVial.getId()) + " (" + str(self.fromVial.peek()) + ") --> " + str(
@@ -138,6 +147,9 @@ class VialSet:
 
         return totalHeuristic
 
+    def removeVial(self, vialId):
+        self.vialList.remove(self.getVial(vialId))
+
     def validate(self, isQuestionPuzzle=False):
         retVal = True
         # Dictionary of color counts
@@ -145,9 +157,12 @@ class VialSet:
 
         print("There are " + str(len(self.vialList)) + " vials in the game")
         print("There are " + str(len(self.vialList[0])) + " colors in each vial")
+        expectedColorCount = (len(self.vialList) - 2) * 4
+        actualColorCnt = 0
 
         for vial in self.vialList:
             for color in vial:
+                actualColorCnt += 1
                 # Don't count unknown colors
                 if color == UNKNOWN:
                     continue
@@ -158,13 +173,33 @@ class VialSet:
                     colors[color] = 1
 
         # Check for any color that does not equal 4
-        for colorName in colors.keys():
-            if colors[colorName] != 4 and not isQuestionPuzzle:
-                print(colorName + " has an invalid count (" + str(colors[colorName]) + ")")
+        for color in colors.keys():
+            if colors[color] != 4 and not isQuestionPuzzle:
+                print(str(color) + " has an invalid count (" + str(colors[color]) + ")")
                 retVal = False
-            elif isQuestionPuzzle and colors[colorName] > 4:
-                print(colorName + " has more than 4 colors (" + str(colors[colorName]) + ")")
+            elif isQuestionPuzzle and colors[color] > 4:
+                print(str(color) + " has more than 4 colors (" + str(colors[color]) + ")")
                 retVal = False
+
+        # Check for empty vial(s)
+        emptyCnt = 0
+        for vial in self.vialList:
+            if vial.isEmpty():
+                emptyCnt += 1
+        if emptyCnt != 2:
+            print("There are " + str(emptyCnt) + " empty vials.")
+            retVal = False
+
+        # Check that there are the expected amount of colors
+        if actualColorCnt == len(self.vialList) * 4:
+            print("It looks like you might have forgotten to use the startEmpty=True parameter for your empty vials")
+            retVal = False
+        elif actualColorCnt < expectedColorCount:
+            print(str(actualColorCnt) + " is not enough colors for " + str(len(self.vialList) - 2) + " filled vials.")
+            retVal = False
+        elif actualColorCnt > expectedColorCount:
+            print(str(actualColorCnt) + " is too many colors for " + str(len(self.vialList) - 2) + " filled vials.")
+            retVal = False
 
         return retVal
 

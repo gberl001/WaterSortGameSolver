@@ -1,6 +1,6 @@
 import unittest
 
-from WaterSortPuzzle import Vial, VialSet, Move, LIGHT_BLUE, DARK_BLUE, GREEN, LIGHT_GREEN, Liquid
+from WaterSortPuzzle import Vial, VialSet, Move, LIGHT_BLUE, DARK_BLUE, GREEN, LIGHT_GREEN, Liquid, PINK, UNKNOWN
 from WaterSortPuzzleSolver import validAndUsefulMove
 
 
@@ -372,3 +372,100 @@ class TestVialSet(unittest.TestCase):
         # Move one of the colors over and confirm we have a better score
         vial2.push(vial5.pop())
         self.assertLess(vialSet.computeGoalHeuristic(), originalHeuristic)
+
+    def testValidGameMoreThanFourColors(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, LIGHT_BLUE, DARK_BLUE, DARK_BLUE))
+        vialSet.addVial(Vial(2, LIGHT_BLUE, LIGHT_BLUE, LIGHT_BLUE, DARK_BLUE))
+        vialSet.addVial(Vial(3, startEmpty=True))
+        vialSet.addVial(Vial(4, startEmpty=True))
+
+        self.assertFalse(vialSet.validate())
+
+    def testValidGameLessThanFourColors(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, LIGHT_BLUE, DARK_BLUE, DARK_BLUE))
+        vialSet.addVial(Vial(2, LIGHT_BLUE, PINK, DARK_BLUE, DARK_BLUE))
+        vialSet.addVial(Vial(3, startEmpty=True))
+        vialSet.addVial(Vial(4, startEmpty=True))
+
+        self.assertFalse(vialSet.validate())
+
+    def testValidGameNoEmptyVials(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, LIGHT_BLUE, DARK_BLUE, DARK_BLUE))
+        vialSet.addVial(Vial(2, LIGHT_BLUE, LIGHT_BLUE, DARK_BLUE, DARK_BLUE))
+
+        self.assertFalse(vialSet.validate())
+
+    def testValidGameNotEnoughEmptyVials(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, LIGHT_BLUE, DARK_BLUE, DARK_BLUE))
+        vialSet.addVial(Vial(2, LIGHT_BLUE, LIGHT_BLUE, DARK_BLUE, DARK_BLUE))
+        vialSet.addVial(Vial(3, startEmpty=True))
+
+        self.assertFalse(vialSet.validate())
+
+    def testValidGameTooManyEmptyVials(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, LIGHT_BLUE, DARK_BLUE, DARK_BLUE))
+        vialSet.addVial(Vial(2, LIGHT_BLUE, LIGHT_BLUE, DARK_BLUE, DARK_BLUE))
+        vialSet.addVial(Vial(3, startEmpty=True))
+        vialSet.addVial(Vial(4, startEmpty=True))
+        vialSet.addVial(Vial(5, startEmpty=True))
+
+        self.assertFalse(vialSet.validate())
+
+    def testValidGameQuestionPuzzle(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(2, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(3, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(4, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(5, startEmpty=True))
+        vialSet.addVial(Vial(6, startEmpty=True))
+
+        self.assertTrue(vialSet.validate(isQuestionPuzzle=True))
+
+    def testValidateForgotStartEmptyParameter(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(2, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(3, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(4, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(5))
+        vialSet.addVial(Vial(6))
+
+        self.assertFalse(vialSet.validate(isQuestionPuzzle=True))
+
+    def testValidGameQuestionPuzzleNotEnoughEmptyVials(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(2, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(3, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(4, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(5, startEmpty=True))
+
+        self.assertFalse(vialSet.validate(isQuestionPuzzle=True))
+
+    def testValidGameQuestionPuzzleTooManyEmptyVials(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(2, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(3, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(4, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+        vialSet.addVial(Vial(5, startEmpty=True))
+        vialSet.addVial(Vial(6, startEmpty=True))
+        vialSet.addVial(Vial(7, startEmpty=True))
+
+        self.assertFalse(vialSet.validate(isQuestionPuzzle=True))
+
+    def testRemoveVial(self):
+        vialSet = VialSet()
+        vialSet.addVial(Vial(1, LIGHT_BLUE, UNKNOWN, UNKNOWN, UNKNOWN))
+
+        self.assertEqual(1, len(vialSet))
+
+        vialSet.removeVial(1)
+
+        self.assertEqual(0, len(vialSet))
