@@ -1,10 +1,11 @@
 import sys
+from ColorSort import *
 from math import floor
 import __main__
 # FIXME: import __main__ is a hack to gain access to the "window" variable created in __main__
 
 from PyQt5.QtGui import QPainter, QPixmap, QColor, QFont, QPen
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QVBoxLayout, QDialog, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QVBoxLayout, QDialog, QLabel, QFileDialog
 
 import WaterSortPuzzleSolver as PuzzleSolver
 from WaterSortPuzzle import LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, GREEN, DARK_GREEN, GRAY, PURPLE, RED, \
@@ -271,9 +272,12 @@ class SetupWindow(QWidget):
         btnLayout.addWidget(btnSolve, 0, 1, 1, 1)
 
     def selectAFile(self):
-        print("yo")
-        pass
-        # TODO: Your code here
+        global colorCount, vialSet
+        file, check = QFileDialog.getOpenFileName(None, "Select Image", "", "All Files (*)")
+        print(file)
+        if check:
+            vialSet = getVials(file, getEmpty=False)
+            print(len(vialSet))
 
     # Remove the last color
     def undo(self):
