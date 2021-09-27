@@ -3,7 +3,7 @@ from math import floor
 import __main__
 # FIXME: import __main__ is a hack to gain access to the "window" variable created in __main__
 
-from PyQt5.QtGui import QPainter, QPixmap, QColor
+from PyQt5.QtGui import QPainter, QPixmap, QColor, QFont, QPen
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QVBoxLayout, QDialog, QLabel
 
 import WaterSortPuzzleSolver as PuzzleSolver
@@ -25,17 +25,29 @@ class ColorSelectionDialog(QDialog):
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
-        self.layout.addWidget(QLabel(msg))
         self.moves = moves
 
-        self.initButtonSubmit()
         self.vialList = vialList
         self.vialNum = vialNum
         self.setWindowTitle("Select a Color")
+
+        # Add the list of moves to make for the current situation
+        self.displayMoves()
+
+        # Add Button selection grid to the dialog
         self.btnGrid = QWidget()
         self.initButtonGrid()
         self.colorsAdded = 0
-        self.displayMoves()
+
+        # Add the message to the dialog
+        messageFont = QFont()
+        messageFont.setBold(True)
+        lblMessage = QLabel(msg)
+        lblMessage.setFont(messageFont)
+        self.layout.addWidget(lblMessage)
+
+        # Show buttons at the bottom of the dialog
+        self.initButtonSubmit()
 
     def initButtonSubmit(self):
         submitLayout = QGridLayout()
@@ -68,8 +80,18 @@ class ColorSelectionDialog(QDialog):
 
     def displayMoves(self):
         moveLayout = QVBoxLayout()
+
+        titleFont = QFont()
+        titleFont.underline()
+        titleFont.setPointSize(12)
+        lblTitle = QLabel("Steps to perform:")
+        lblTitle.setFont(titleFont)
+        moveLayout.addWidget(lblTitle)
+
         for move in self.moves:
             moveLayout.addWidget(QLabel(str(move)))
+
+        __main__.window.displayMoveArrow(self.moves[len(self.moves) - 1])
 
         self.layout.addLayout(moveLayout)
 
@@ -92,12 +114,15 @@ class ColorSelectionDialog(QDialog):
     def btnUndo(self):
         vial = self.vialList.getVial(self.vialNum)
         # Replace the colors added with unknown colors
+        removedColor = None
         for i in range(0, self.colorsAdded):
-            vial.pop()
+            removedColor = vial.pop()
         for i in range(0, self.colorsAdded):
             vial.push(UNKNOWN)
 
         self.colorsAdded = 0
+        print("Removed " + str(removedColor) + " from vial " + str(self.vialList.getVial(self.vialNum)))
+        __main__.window.repaint()
 
 
 class ColorSelectionGrid(QWidget):
@@ -125,7 +150,7 @@ class ColorSelectionGrid(QWidget):
                 btnCnt += 1
 
     def buttonClicked(self, position):
-        global colors, colorCount
+        global colors, colorCount, vialSet
 
         # Figure out the vial
         vialNum = floor(colorCount / 4) + 1
@@ -147,9 +172,17 @@ class PictureCanvas(QWidget):
     def __init__(self):
         super(PictureCanvas, self).__init__()
         self.setGeometry(30, 30, 200, 300)
+        self.lastMove = None
+
+    def displayMoveArrow(self, move):
+        self.lastMove = move
 
     def paintEvent(self, event):
-        global isQuestionGame
+        global isQuestionGame, vialSet
+        xOffset = 10
+        yOffset = 10
+        colorSquareSize = 25
+        spaceBetweenVials = 5
 
         painter = QPainter(self)
         pixmap = QPixmap("./lib/Koala.png")
@@ -158,16 +191,39 @@ class PictureCanvas(QWidget):
         # Update the vial colors
         vialNum = 0
         for vial in vialSet:
-            x = 10 + vialNum * 30
+            x = xOffset + vialNum * (colorSquareSize + spaceBetweenVials)
             vialNum += 1
 
             colorNum = 0
             for color in vial.colors:
                 if color == UNKNOWN:
                     isQuestionGame = True
-                y = 10 + (100 - colorNum * 25)
-                painter.fillRect(x, y, 25, 25, QColor(color.getColor()))
+                y = yOffset + (100 - colorNum * colorSquareSize)
+                painter.fillRect(x, y, colorSquareSize, colorSquareSize, QColor(color.getColor()))
                 colorNum += 1
+
+        # Paint the last move arrow
+        if self.lastMove is not None:
+            # Find the location of vialFrom and vialTo
+            fromId = self.lastMove.getFromVial().getId()
+            toId = self.lastMove.getToVial().getId()
+
+            xFrom = floor(xOffset + fromId * (colorSquareSize + spaceBetweenVials) - (colorSquareSize + spaceBetweenVials) / 2)
+            xTo = floor(xOffset + toId * (colorSquareSize + spaceBetweenVials) - (colorSquareSize + spaceBetweenVials) / 2)
+
+            arrowPen = QPen()
+            arrowPen.setColor(QColor("#000000"))
+            arrowPen.setWidth(2)
+            painter.setPen(arrowPen)
+
+            # Draw the arrow
+            if xFrom < xTo:
+                arrowOffset = -5
+            else:
+                arrowOffset = +5
+            painter.drawLine(xFrom, 35, xTo, 35)
+            painter.drawLine(xTo + arrowOffset, 30, xTo, 35)
+            painter.drawLine(xTo + arrowOffset, 40, xTo, 35)
 
         painter.end()
 
@@ -192,6 +248,9 @@ class SetupWindow(QWidget):
         self.setWindowTitle("Color Selection")
         self.setGeometry(50, 50, 200, 500)
 
+    def displayMoveArrow(self, move):
+        self.pictureCanvas.displayMoveArrow(move)
+
     def initActionButtons(self):
         btnLayout = QGridLayout()
         self.actionButtons.setLayout(btnLayout)
@@ -205,7 +264,7 @@ class SetupWindow(QWidget):
 
     # Remove the last color
     def undo(self):
-        global colorCount
+        global colorCount, vialSet
         vial = vialSet.getVial(len(vialSet))
         vial.pop()
         colorCount -= 1
@@ -214,7 +273,7 @@ class SetupWindow(QWidget):
         window.repaint()
 
     def solveTheGame(self):
-        global colorCount
+        global colorCount, vialSet
         # Add two empty vials
         vialSet.addVial(Vial(len(vialSet) + 1, startEmpty=True))
         vialSet.addVial(Vial(len(vialSet) + 1, startEmpty=True))

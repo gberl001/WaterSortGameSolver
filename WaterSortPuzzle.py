@@ -57,6 +57,12 @@ class Move:
                 self.fromVial.push(self.toVial.pop())
             self.amtMoved = 0
 
+    def getFromVial(self):
+        return self.fromVial
+
+    def getToVial(self):
+        return self.toVial
+
     def moveHeuristic(self):
         totalHeuristic = 0
         # We don't want to move from a full single color to an empty vial, that's a lateral move
@@ -70,6 +76,9 @@ class Move:
             totalHeuristic += 200
 
         return totalHeuristic
+
+    def shallowCopy(self):
+        return Move(self.fromVial.shallowCopy(), self.toVial.shallowCopy())
 
     def __str__(self):
         return str(self.fromVial.getId()) + " (" + str(self.fromVial.peek()) + ") --> " + str(

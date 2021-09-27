@@ -34,7 +34,7 @@ def startGameWithSpecificStartingVial(vialSet, recordedMoves, startingVial, isQu
         gameMove = possibleGameMoves.get2()
         # Perform the move, then recurse, then undo the move
         # print("Attempting move " + str(gameMove) + " at level " + str(len(recordedMoves)))
-        recordedMoves.append(str(gameMove))
+        recordedMoves.append(gameMove.shallowCopy())
         gameMove.execute()
         if getGameResult(vialSet, recordedMoves, isQuestionPuzzle):
             return True
@@ -61,7 +61,7 @@ def getGameResult(vialSet, recordedMoves, isQuestionPuzzle=False):
         gameMove = possibleGameMoves.get2()
         # Perform the move, then recurse, then undo the move
         # print("Attempting move " + str(gameMove) + " at level " + str(len(recordedMoves)))
-        recordedMoves.append(str(gameMove))
+        recordedMoves.append(gameMove.shallowCopy())
         gameMove.execute()
         if getGameResult(vialSet, recordedMoves, isQuestionPuzzle):
             return True
@@ -75,7 +75,7 @@ def checkForUnknown(vialSet, moves):
         # Check for unknown color
         if vial.peek() == UNKNOWN:
             for move in moves:
-                print(move)
+                print(str(move))
 
             ColorSelectionDialog("What color is in vial " + str(vial.getId()) + "?", vialSet, vial.getId(), moves).exec_()
             # print()
