@@ -241,12 +241,20 @@ class SetupWindow(QWidget):
 
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
+
+        # Add stuff to the window
+        self.initFileButton()
         self.mainLayout.addWidget(self.btnGrid)
         self.mainLayout.addWidget(self.pictureCanvas)
         self.mainLayout.addWidget(self.actionButtons)
 
         self.setWindowTitle("Color Selection")
         self.setGeometry(50, 50, 200, 500)
+
+    def initFileButton(self):
+        btnFile = QPushButton("Open image...")
+        btnFile.clicked.connect(lambda: self.selectAFile())
+        self.mainLayout.addWidget(btnFile)
 
     def displayMoveArrow(self, move):
         self.pictureCanvas.displayMoveArrow(move)
@@ -261,6 +269,11 @@ class SetupWindow(QWidget):
         btnUndo.clicked.connect(lambda: self.undo())
         btnLayout.addWidget(btnUndo, 0, 0, 1, 1)
         btnLayout.addWidget(btnSolve, 0, 1, 1, 1)
+
+    def selectAFile(self):
+        print("yo")
+        pass
+        # TODO: Your code here
 
     # Remove the last color
     def undo(self):
