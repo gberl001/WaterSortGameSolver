@@ -1,4 +1,4 @@
-import matplotlib.pyplot
+from matplotlib import pyplot as plt
 
 from GameSetupPrompt import *
 from PriorityQueue import PriorityQueue
@@ -157,8 +157,8 @@ def displaySolutionSteps(moves):
         # If we've reached the page limit, show the page of images
         if imgIdx % (columns * rows) == 0 or moveIdx == len(moves):
             imgIdx = 0
-            matplotlib.pyplot.waitforbuttonpress()
-            matplotlib.pyplot.close(fig)
+            plt.waitforbuttonpress()
+            plt.close(fig)
             fig = plt.figure(figsize=(8, 8))
 
 
