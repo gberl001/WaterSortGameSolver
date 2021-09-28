@@ -1,3 +1,6 @@
+from PIL import Image, ImageFont, ImageDraw
+
+
 class Liquid:
     def __init__(self, color, name):
         self.color = color
@@ -79,6 +82,37 @@ class Move:
 
     def shallowCopy(self):
         return Move(self.fromVial.shallowCopy(), self.toVial.shallowCopy())
+
+    def drawImage(self):
+        image = Image.new('RGB', (200, 200), color='#CCCCCC')
+
+        # Setup
+        fnt = ImageFont.truetype("calibri.ttf", size=25)
+        w = h = 30
+
+        # Draw the From Vial
+        vial1Text = ImageDraw.Draw(image)
+        vial1Text.text((35, 170), str(self.fromVial.getId()), font=fnt, fill=(0, 0, 0))
+        x = 25
+        y = 145
+        for color in self.fromVial.colors:
+            y -= h
+            shape = [(x, y), (x + w, y + h)]
+            img = ImageDraw.Draw(image)
+            img.rectangle(shape, fill=color.getColor())
+
+        # Draw the From Vial
+        vial2Text = ImageDraw.Draw(image)
+        vial2Text.text((145, 170), str(self.toVial.getId()), font=fnt, fill=(0, 0, 0))
+        x = 135
+        y = 145
+        for color in self.toVial.colors:
+            y -= h
+            shape = [(x, y), (x + w, y + h)]
+            img = ImageDraw.Draw(image)
+            img.rectangle(shape, fill=color.getColor())
+
+        return image
 
     def __str__(self):
         return str(self.fromVial.getId()) + " (" + str(self.fromVial.peek()) + ") --> " + str(

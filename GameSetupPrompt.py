@@ -14,7 +14,7 @@ from WaterSortPuzzle import LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, 
 colors = [LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, GREEN, DARK_GREEN, GRAY, PURPLE, RED, BROWN, PINK,
           UNKNOWN]
 
-vialSet = VialSet()
+guiVialSet = VialSet()
 colorCount = 0
 isQuestionGame = False
 
@@ -151,19 +151,19 @@ class ColorSelectionGrid(QWidget):
                 btnCnt += 1
 
     def buttonClicked(self, position):
-        global colors, colorCount, vialSet
+        global colors, colorCount, guiVialSet
 
         # Figure out the vial
         vialNum = floor(colorCount / 4) + 1
 
         # See if we need to create a vial
-        if len(vialSet) < vialNum:
-            vialSet.addVial(Vial(vialNum, startEmpty=True))
-            print(str(vialSet))
+        if len(guiVialSet) < vialNum:
+            guiVialSet.addVial(Vial(vialNum, startEmpty=True))
+            print(str(guiVialSet))
 
         # Add the color to the vial
-        vialSet.getVial(vialNum).push(colors[position])
-        print("Added " + str(colors[position]) + " to vial " + str(vialSet.getVial(vialNum)))
+        guiVialSet.getVial(vialNum).push(colors[position])
+        # print("Added " + str(colors[position]) + " to vial " + str(guiVialSet.getVial(vialNum)))
 
         window.repaint()
         colorCount += 1
@@ -179,7 +179,7 @@ class PictureCanvas(QWidget):
         self.lastMove = move
 
     def paintEvent(self, event):
-        global isQuestionGame, vialSet
+        global isQuestionGame, guiVialSet
         xOffset = 10
         yOffset = 10
         colorSquareSize = 25
@@ -191,7 +191,7 @@ class PictureCanvas(QWidget):
 
         # Update the vial colors
         vialNum = 0
-        for vial in vialSet:
+        for vial in guiVialSet:
             x = xOffset + vialNum * (colorSquareSize + spaceBetweenVials)
             vialNum += 1
 
@@ -272,40 +272,43 @@ class SetupWindow(QWidget):
         btnLayout.addWidget(btnSolve, 0, 1, 1, 1)
 
     def selectAFile(self):
-        global colorCount, vialSet
+        global colorCount, guiVialSet
         file, check = QFileDialog.getOpenFileName(None, "Select Image", "", "All Files (*)")
         if check:
-            vialSet = getVials(file, getEmpty=False)
+            guiVialSet = getVials(file, getEmpty=False)
 
     # Remove the last color
     def undo(self):
-        global colorCount, vialSet
-        vial = vialSet.getVial(len(vialSet))
+        global colorCount, guiVialSet
+        vial = guiVialSet.getVial(len(guiVialSet))
         vial.pop()
         colorCount -= 1
         if vial.isEmpty():
-            vialSet.removeVial(vial.getId())
+            guiVialSet.removeVial(vial.getId())
         window.repaint()
 
     def solveTheGame(self):
-        global colorCount, vialSet
+        global colorCount, guiVialSet
         # Add two empty vials
-        vialSet.addVial(Vial(len(vialSet) + 1, startEmpty=True))
-        vialSet.addVial(Vial(len(vialSet) + 1, startEmpty=True))
+        guiVialSet.addVial(Vial(len(guiVialSet) + 1, startEmpty=True))
+        guiVialSet.addVial(Vial(len(guiVialSet) + 1, startEmpty=True))
 
         # Make sure it's a valid game
-        if not vialSet.validate(isQuestionGame):
+        if not guiVialSet.validate(isQuestionGame):
             exit(1)
 
         gameMoves = []
         # PuzzleSolver.startGameWithSpecificStartingVial(
         #     vialSet, gameMoves, vialSet.getVial(10), isQuestionPuzzle=isQuestionGame)
-        PuzzleSolver.getGameResult(vialSet, gameMoves, isQuestionPuzzle=isQuestionGame)
+        PuzzleSolver.getGameResult(guiVialSet, gameMoves, isQuestionPuzzle=isQuestionGame)
+        window.repaint()
 
         # Print the solution steps
         print("\nSolution:")
         for qualityMove in gameMoves:
             print(qualityMove)
+
+        PuzzleSolver.displaySolutionSteps(gameMoves)
 
 
 if __name__ == '__main__':

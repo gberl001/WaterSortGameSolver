@@ -1,10 +1,8 @@
-import cv2
-import numpy as np
-from matplotlib import pyplot as plt
 from math import sqrt
-from WaterSortPuzzle import Vial, LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, GREEN, DARK_GREEN, GRAY, PURPLE, \
-    RED, BROWN, PINK, Move, VialSet, UNKNOWN
-from WaterSortPuzzleSolver import getGameResult
+
+import cv2
+
+from WaterSortPuzzleSolver import *
 
 
 def getVials(path, getEmpty=True):
@@ -85,7 +83,7 @@ def getVials(path, getEmpty=True):
     questionGame = False
 
 
-    for i, vial in enumerate(vials):
+    for i, vial in enumerate(reversed(vials)):
         colors = []
         h, w, _ = vial.shape
         pos = [vial[int(h * 0.17), w - 25], vial[int(h * 0.51), w - 25], vial[int(h * 0.68), w - 25],
