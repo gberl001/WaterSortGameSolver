@@ -1,10 +1,11 @@
 import sys
+from ColorSort import *
 from math import floor
 import __main__
 # FIXME: import __main__ is a hack to gain access to the "window" variable created in __main__
 
 from PyQt5.QtGui import QPainter, QPixmap, QColor, QFont, QPen
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QVBoxLayout, QDialog, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QVBoxLayout, QDialog, QLabel, QFileDialog
 
 import WaterSortPuzzleSolver as PuzzleSolver
 from WaterSortPuzzle import LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, GREEN, DARK_GREEN, GRAY, PURPLE, RED, \
@@ -241,12 +242,20 @@ class SetupWindow(QWidget):
 
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
+
+        # Add stuff to the window
+        self.initFileButton()
         self.mainLayout.addWidget(self.btnGrid)
         self.mainLayout.addWidget(self.pictureCanvas)
         self.mainLayout.addWidget(self.actionButtons)
 
         self.setWindowTitle("Color Selection")
         self.setGeometry(50, 50, 200, 500)
+
+    def initFileButton(self):
+        btnFile = QPushButton("Open image...")
+        btnFile.clicked.connect(lambda: self.selectAFile())
+        self.mainLayout.addWidget(btnFile)
 
     def displayMoveArrow(self, move):
         self.pictureCanvas.displayMoveArrow(move)
@@ -261,6 +270,12 @@ class SetupWindow(QWidget):
         btnUndo.clicked.connect(lambda: self.undo())
         btnLayout.addWidget(btnUndo, 0, 0, 1, 1)
         btnLayout.addWidget(btnSolve, 0, 1, 1, 1)
+
+    def selectAFile(self):
+        global colorCount, vialSet
+        file, check = QFileDialog.getOpenFileName(None, "Select Image", "", "All Files (*)")
+        if check:
+            vialSet = getVials(file, getEmpty=False)
 
     # Remove the last color
     def undo(self):
