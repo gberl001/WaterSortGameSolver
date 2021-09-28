@@ -83,7 +83,7 @@ def getVials(path, getEmpty=True):
     questionGame = False
 
 
-    for i, vial in enumerate(vials):
+    for i, vial in enumerate(reversed(vials)):
         colors = []
         h, w, _ = vial.shape
         pos = [vial[int(h * 0.17), w - 25], vial[int(h * 0.51), w - 25], vial[int(h * 0.68), w - 25],
