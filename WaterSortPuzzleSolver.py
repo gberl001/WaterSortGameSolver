@@ -188,7 +188,8 @@ if __name__ == "__main__":
         exit(1)
 
     gameMoves = []
-    # startGameWithSpecificStartingVial(gameVialSet, gameMoves, gameVialSet.getVial(10), isQuestionPuzzle=isQuestionGame)
+    # startGameWithSpecificStartingVial(gameVialSet, gameMoves, gameVialSet.getVial(10),
+    #                                   isQuestionPuzzle=isQuestionGame)
     getGameResult(gameVialSet, gameMoves, isQuestionPuzzle=isQuestionGame)
 
     # Print the solution steps
