@@ -167,19 +167,12 @@ class VialSet:
     def getVials(self):
         return self.vialList
 
-    # Create a score based on how close to a complete separation we are
-    def computeGoalHeuristic(self):
-        totalHeuristic = 0
+    def getEmptyVialCount(self):
+        retVal = 0
         for vial in self.vialList:
-            # If a vial is full of a single color, don't add points as this is our goal
-            if not (vial.isSingleColor() and vial.isFull()):
-                colorSet = set()
-                for color in vial.colors:
-                    colorSet.add(color)
-                totalHeuristic += len(colorSet)
-                del colorSet
-
-        return totalHeuristic
+            if vial.isEmpty():
+                retVal += 1
+        return retVal
 
     def removeVial(self, vialId):
         self.vialList.remove(self.getVial(vialId))
