@@ -277,8 +277,10 @@ class TestVialSet(unittest.TestCase):
     def testVialSetIterator(self):
         vialSet = VialSet()
 
-        vialsList = [Vial(1, LIGHT_BLUE, DARK_BLUE, LIGHT_GREEN, GREEN), Vial(2, LIGHT_BLUE, DARK_BLUE, LIGHT_GREEN, GREEN),
-                     Vial(3, LIGHT_BLUE, DARK_BLUE, LIGHT_GREEN, GREEN), Vial(4, LIGHT_BLUE, DARK_BLUE, LIGHT_GREEN, GREEN),
+        vialsList = [Vial(1, LIGHT_BLUE, DARK_BLUE, LIGHT_GREEN, GREEN),
+                     Vial(2, LIGHT_BLUE, DARK_BLUE, LIGHT_GREEN, GREEN),
+                     Vial(3, LIGHT_BLUE, DARK_BLUE, LIGHT_GREEN, GREEN),
+                     Vial(4, LIGHT_BLUE, DARK_BLUE, LIGHT_GREEN, GREEN),
                      Vial(5, startEmpty=True)]
 
         for vial in vialsList:
@@ -318,60 +320,6 @@ class TestVialSet(unittest.TestCase):
         copiedVial = vialSetCopy.getVial(1)
         self.assertEqual(vial.getId(), copiedVial.getId())
         self.assertEqual(vial.isEmpty(), copiedVial.isEmpty())
-
-    def testHeuristicPerfectGame(self):
-        vialSet = VialSet()
-
-        vialsList = [Vial(1, LIGHT_BLUE, LIGHT_BLUE, LIGHT_BLUE, LIGHT_BLUE), Vial(2, DARK_BLUE, DARK_BLUE, DARK_BLUE, DARK_BLUE),
-                     Vial(3, LIGHT_GREEN, LIGHT_GREEN, LIGHT_GREEN, LIGHT_GREEN), Vial(4, GREEN, GREEN, GREEN, GREEN),
-                     Vial(5, startEmpty=True)]
-        for vial in vialsList:
-            vialSet.addVial(vial)
-
-        self.assertEqual(0, vialSet.computeGoalHeuristic())
-
-    def testHeuristicCloseGame(self):
-        vialSet = VialSet()
-        vial5 = Vial(5, startEmpty=True)
-        vial1 = Vial(1, startEmpty=True)
-        vial1.push(LIGHT_BLUE)
-        vial1.push(LIGHT_BLUE)
-        vial1.push(LIGHT_BLUE)
-        vial5.push(LIGHT_BLUE)
-
-        vialsList = [vial1, Vial(2, DARK_BLUE, DARK_BLUE, DARK_BLUE, DARK_BLUE),
-                     Vial(3, LIGHT_GREEN, LIGHT_GREEN, LIGHT_GREEN, LIGHT_GREEN), Vial(4, GREEN, GREEN, GREEN, GREEN),
-                     vial5]
-        for vial in vialsList:
-            vialSet.addVial(vial)
-
-        # Two vials have a single color but are NOT full so we should get a point for each
-        self.assertEqual(2, vialSet.computeGoalHeuristic())
-
-    def testHeuristicAnotherCloseGame(self):
-        vialSet = VialSet()
-        vial5 = Vial(5, startEmpty=True)
-        vial1 = Vial(1, startEmpty=True)
-        vial2 = Vial(2, startEmpty=True)
-        for i in range(0, 3):
-            vial1.push(LIGHT_BLUE)
-            vial2.push(DARK_BLUE)
-        vial5.push(LIGHT_BLUE)
-        vial5.push(DARK_BLUE)
-
-        vialsList = [vial1, vial2,
-                     Vial(3, LIGHT_GREEN, LIGHT_GREEN, LIGHT_GREEN, LIGHT_GREEN), Vial(4, GREEN, GREEN, GREEN, GREEN),
-                     vial5]
-        for vial in vialsList:
-            vialSet.addVial(vial)
-
-        # Two vials have a single color but are NOT full and one vial has two colors so we should get 4
-        originalHeuristic = vialSet.computeGoalHeuristic()
-        self.assertEqual(4, originalHeuristic)
-
-        # Move one of the colors over and confirm we have a better score
-        vial2.push(vial5.pop())
-        self.assertLess(vialSet.computeGoalHeuristic(), originalHeuristic)
 
     def testValidGameMoreThanFourColors(self):
         vialSet = VialSet()

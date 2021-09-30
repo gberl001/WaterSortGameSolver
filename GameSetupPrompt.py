@@ -1,20 +1,19 @@
-import sys
-from ColorSort import *
-from math import floor
 import __main__
 # FIXME: import __main__ is a hack to gain access to the "window" variable created in __main__
+import sys
+from math import floor
 
 from PyQt5.QtGui import QPainter, QPixmap, QColor, QFont, QPen
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QPushButton, QVBoxLayout, QDialog, QLabel, QFileDialog
 
+import ColorSort as PictureAnalyzer
 import WaterSortPuzzleSolver as PuzzleSolver
 from WaterSortPuzzle import LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, GREEN, DARK_GREEN, GRAY, PURPLE, RED, \
     BROWN, PINK, UNKNOWN, VialSet, Vial
 
 colors = [LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, GREEN, DARK_GREEN, GRAY, PURPLE, RED, BROWN, PINK,
           UNKNOWN]
-
-vialSet = VialSet()
+guiVialSet = VialSet()
 colorCount = 0
 isQuestionGame = False
 
@@ -151,21 +150,21 @@ class ColorSelectionGrid(QWidget):
                 btnCnt += 1
 
     def buttonClicked(self, position):
-        global colors, colorCount, vialSet
+        global colors, colorCount, guiVialSet
 
         # Figure out the vial
         vialNum = floor(colorCount / 4) + 1
 
         # See if we need to create a vial
-        if len(vialSet) < vialNum:
-            vialSet.addVial(Vial(vialNum, startEmpty=True))
-            print(str(vialSet))
+        if len(guiVialSet) < vialNum:
+            guiVialSet.addVial(Vial(vialNum, startEmpty=True))
+            print(str(guiVialSet))
 
         # Add the color to the vial
-        vialSet.getVial(vialNum).push(colors[position])
-        print("Added " + str(colors[position]) + " to vial " + str(vialSet.getVial(vialNum)))
+        guiVialSet.getVial(vialNum).push(colors[position])
+        # print("Added " + str(colors[position]) + " to vial " + str(guiVialSet.getVial(vialNum)))
 
-        window.repaint()
+        self.parent().repaint()
         colorCount += 1
 
 
@@ -179,7 +178,7 @@ class PictureCanvas(QWidget):
         self.lastMove = move
 
     def paintEvent(self, event):
-        global isQuestionGame, vialSet
+        global isQuestionGame, guiVialSet
         xOffset = 10
         yOffset = 10
         colorSquareSize = 25
@@ -191,7 +190,7 @@ class PictureCanvas(QWidget):
 
         # Update the vial colors
         vialNum = 0
-        for vial in vialSet:
+        for vial in guiVialSet:
             x = xOffset + vialNum * (colorSquareSize + spaceBetweenVials)
             vialNum += 1
 
@@ -209,8 +208,10 @@ class PictureCanvas(QWidget):
             fromId = self.lastMove.getFromVial().getId()
             toId = self.lastMove.getToVial().getId()
 
-            xFrom = floor(xOffset + fromId * (colorSquareSize + spaceBetweenVials) - (colorSquareSize + spaceBetweenVials) / 2)
-            xTo = floor(xOffset + toId * (colorSquareSize + spaceBetweenVials) - (colorSquareSize + spaceBetweenVials) / 2)
+            xFrom = floor(xOffset + fromId * (colorSquareSize + spaceBetweenVials) -
+                          (colorSquareSize + spaceBetweenVials) / 2)
+            xTo = floor(xOffset + toId * (colorSquareSize + spaceBetweenVials) -
+                        (colorSquareSize + spaceBetweenVials) / 2)
 
             arrowPen = QPen()
             arrowPen.setColor(QColor("#000000"))
@@ -233,20 +234,25 @@ class SetupWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.btnGrid = ColorSelectionGrid()
-        # self.btnGrid = QWidget()
+        # Create the widgets
+        self.lblMessage = QLabel()
         self.actionButtons = QWidget()
         self.pictureCanvas = PictureCanvas()
+
         self.image = QPixmap("./lib/Koala.png")
-        # self.initButtonGrid()
         self.initActionButtons()
 
+        # Main layout is a vertical layout, each item added is below the previous items
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
 
-        # Add stuff to the window
+        # Add file selection button at the top
         self.initFileButton()
+        # Next add the color selection button grid
         self.mainLayout.addWidget(self.btnGrid)
+        # Next add the vial set image
         self.mainLayout.addWidget(self.pictureCanvas)
+        # Next add the action buttons, and the message box
         self.mainLayout.addWidget(self.actionButtons)
 
         self.setWindowTitle("Color Selection")
@@ -264,6 +270,7 @@ class SetupWindow(QWidget):
         btnLayout = QGridLayout()
         self.actionButtons.setLayout(btnLayout)
 
+        # Add the action buttons
         btnSolve = QPushButton("Solve!")
         btnUndo = QPushButton("Undo")
         btnSolve.clicked.connect(lambda: self.solveTheGame())
@@ -271,41 +278,52 @@ class SetupWindow(QWidget):
         btnLayout.addWidget(btnUndo, 0, 0, 1, 1)
         btnLayout.addWidget(btnSolve, 0, 1, 1, 1)
 
+        # Add the message section
+        self.lblMessage.setStyleSheet("color: red")
+        btnLayout.addWidget(self.lblMessage, 1, 0, 1, 2)
+
     def selectAFile(self):
-        global colorCount, vialSet
+        global colorCount, guiVialSet
         file, check = QFileDialog.getOpenFileName(None, "Select Image", "", "All Files (*)")
         if check:
-            vialSet = getVials(file, getEmpty=False)
+            guiVialSet = PictureAnalyzer.getVials(file, getEmpty=False)
+            self.parent().repaint()
 
     # Remove the last color
     def undo(self):
-        global colorCount, vialSet
-        vial = vialSet.getVial(len(vialSet))
+        global colorCount, guiVialSet
+        vial = guiVialSet.getVial(len(guiVialSet))
         vial.pop()
         colorCount -= 1
         if vial.isEmpty():
-            vialSet.removeVial(vial.getId())
-        window.repaint()
+            guiVialSet.removeVial(vial.getId())
+        self.parent().repaint()
 
     def solveTheGame(self):
-        global colorCount, vialSet
-        # Add two empty vials
-        vialSet.addVial(Vial(len(vialSet) + 1, startEmpty=True))
-        vialSet.addVial(Vial(len(vialSet) + 1, startEmpty=True))
+        global colorCount, guiVialSet
+        # Ensure there are two empty vials
+        for i in range(2 - guiVialSet.getEmptyVialCount()):
+            guiVialSet.addVial(Vial(len(guiVialSet) + 1, startEmpty=True))
 
         # Make sure it's a valid game
-        if not vialSet.validate(isQuestionGame):
-            exit(1)
+        if guiVialSet.validate(isQuestionGame):
+            self.lblMessage.setText("")
+            moves = []
+            result = PuzzleSolver.getGameResult(guiVialSet, moves, isQuestionPuzzle=isQuestionGame)
 
-        gameMoves = []
-        # PuzzleSolver.startGameWithSpecificStartingVial(
-        #     vialSet, gameMoves, vialSet.getVial(10), isQuestionPuzzle=isQuestionGame)
-        PuzzleSolver.getGameResult(vialSet, gameMoves, isQuestionPuzzle=isQuestionGame)
+            if result:
+                self.lblMessage.setText("Success: Solution Found")
 
-        # Print the solution steps
-        print("\nSolution:")
-        for qualityMove in gameMoves:
-            print(qualityMove)
+            # Print the solution steps
+            print("\nSolution:")
+            for move in moves:
+                print(move)
+
+            PuzzleSolver.displaySolutionSteps(moves)
+        else:
+            self.lblMessage.setText("Invalid game, check your entry and try again")
+
+        window.repaint()
 
 
 if __name__ == '__main__':

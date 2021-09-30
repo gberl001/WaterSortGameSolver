@@ -1,3 +1,6 @@
+from PIL import Image, ImageFont, ImageDraw
+
+
 class Liquid:
     def __init__(self, color, name):
         self.color = color
@@ -80,6 +83,37 @@ class Move:
     def shallowCopy(self):
         return Move(self.fromVial.shallowCopy(), self.toVial.shallowCopy())
 
+    def drawImage(self):
+        image = Image.new('RGB', (200, 200), color='#CCCCCC')
+
+        # Setup
+        fnt = ImageFont.truetype("calibri.ttf", size=25)
+        w = h = 30
+
+        # Draw the From Vial
+        vial1Text = ImageDraw.Draw(image)
+        vial1Text.text((35, 170), str(self.fromVial.getId()), font=fnt, fill=(0, 0, 0))
+        x = 25
+        y = 145
+        for color in self.fromVial.colors:
+            y -= h
+            shape = [(x, y), (x + w, y + h)]
+            img = ImageDraw.Draw(image)
+            img.rectangle(shape, fill=color.getColor())
+
+        # Draw the From Vial
+        vial2Text = ImageDraw.Draw(image)
+        vial2Text.text((145, 170), str(self.toVial.getId()), font=fnt, fill=(0, 0, 0))
+        x = 135
+        y = 145
+        for color in self.toVial.colors:
+            y -= h
+            shape = [(x, y), (x + w, y + h)]
+            img = ImageDraw.Draw(image)
+            img.rectangle(shape, fill=color.getColor())
+
+        return image
+
     def __str__(self):
         return str(self.fromVial.getId()) + " (" + str(self.fromVial.peek()) + ") --> " + str(
             self.toVial.getId()) + " (" + str(self.toVial.peek()) + ")"
@@ -133,19 +167,12 @@ class VialSet:
     def getVials(self):
         return self.vialList
 
-    # Create a score based on how close to a complete separation we are
-    def computeGoalHeuristic(self):
-        totalHeuristic = 0
+    def getEmptyVialCount(self):
+        retVal = 0
         for vial in self.vialList:
-            # If a vial is full of a single color, don't add points as this is our goal
-            if not (vial.isSingleColor() and vial.isFull()):
-                colorSet = set()
-                for color in vial.colors:
-                    colorSet.add(color)
-                totalHeuristic += len(colorSet)
-                del colorSet
-
-        return totalHeuristic
+            if vial.isEmpty():
+                retVal += 1
+        return retVal
 
     def removeVial(self, vialId):
         self.vialList.remove(self.getVial(vialId))

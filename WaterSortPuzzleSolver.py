@@ -1,9 +1,9 @@
-from GameSetupPrompt import ColorSelectionDialog
+from matplotlib import pyplot as plt
+
+from GameSetupPrompt import *
 from PriorityQueue import PriorityQueue
 from WaterSortPuzzle import Vial, LIGHT_BLUE, DARK_BLUE, YELLOW, ORANGE, LIGHT_GREEN, GREEN, DARK_GREEN, GRAY, PURPLE, \
     RED, BROWN, PINK, Move, VialSet, UNKNOWN
-
-import sys
 
 sys.setrecursionlimit(10000)
 
@@ -54,8 +54,8 @@ def getGameResult(vialSet, recordedMoves, isQuestionPuzzle=False):
     possibleGameMoves = getPossibleGameMoves(vialSet)
     # if len(possibleGameMoves) == 0:
     #     print("Exhausted this attempt")
-        # print(vialSet)
-        # print("------------------------------------------")
+    # print(vialSet)
+    # print("------------------------------------------")
 
     while not possibleGameMoves.empty():
         gameMove = possibleGameMoves.get2()
@@ -77,7 +77,8 @@ def checkForUnknown(vialSet, moves):
             for move in moves:
                 print(str(move))
 
-            ColorSelectionDialog("What color is in vial " + str(vial.getId()) + "?", vialSet, vial.getId(), moves).exec_()
+            ColorSelectionDialog("What color is in vial " + str(vial.getId()) + "?", vialSet, vial.getId(),
+                                 moves).exec_()
 
             # Print new color map
             print("The new reported colors:")
@@ -138,6 +139,29 @@ def heuristic(thisVial, thatVial):
         result += 100
 
 
+def displaySolutionSteps(moves):
+    # Display solution as images
+    fig = plt.figure(figsize=(8, 8))
+    columns = 4
+    rows = 4
+
+    imgIdx = 0
+    moveIdx = 0
+    for move in moves:
+        moveIdx += 1
+        imgIdx += 1
+        fig.add_subplot(rows, columns, imgIdx)
+        plt.imshow(move.drawImage())
+        plt.axis('off')
+        plt.title(str(move), fontsize=8)
+        # If we've reached the page limit, show the page of images
+        if imgIdx % (columns * rows) == 0 or moveIdx == len(moves):
+            imgIdx = 0
+            plt.waitforbuttonpress()
+            plt.close(fig)
+            fig = plt.figure(figsize=(8, 8))
+
+
 if __name__ == "__main__":
 
     gameVialSet = VialSet()
@@ -156,7 +180,7 @@ if __name__ == "__main__":
     gameVialSet.addVial(Vial(10, BROWN, YELLOW, GRAY, GREEN))
     gameVialSet.addVial(Vial(11, GRAY, YELLOW, LIGHT_GREEN, DARK_BLUE))
     gameVialSet.addVial(Vial(12, GREEN, LIGHT_BLUE, PINK, ORANGE))
-    gameVialSet.addVial(Vial(13, startEmpty=True),)
+    gameVialSet.addVial(Vial(13, startEmpty=True))
     gameVialSet.addVial(Vial(14, startEmpty=True))
 
     # Make sure it's a valid game
@@ -164,10 +188,13 @@ if __name__ == "__main__":
         exit(1)
 
     gameMoves = []
-    # startGameWithSpecificStartingVial(gameVialSet, gameMoves, gameVialSet.getVial(10), isQuestionPuzzle=isQuestionGame)
+    # startGameWithSpecificStartingVial(gameVialSet, gameMoves, gameVialSet.getVial(10),
+    #                                   isQuestionPuzzle=isQuestionGame)
     getGameResult(gameVialSet, gameMoves, isQuestionPuzzle=isQuestionGame)
 
     # Print the solution steps
     print("\nSolution:")
     for qualityMove in gameMoves:
         print(qualityMove)
+
+    displaySolutionSteps(gameMoves)
